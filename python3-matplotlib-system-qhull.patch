@@ -1,0 +1,20 @@
+--- matplotlib-3.2.1/setupext.py.orig	2020-03-18 05:07:16.000000000 +0100
++++ matplotlib-3.2.1/setupext.py	2020-04-02 22:15:45.165821667 +0200
+@@ -181,6 +181,7 @@
+ 
+ lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
+ options['local_freetype'] = lft or options.get('local_freetype', False)
++options['local_qhull'] = False
+ 
+ staticbuild = bool(os.environ.get('MPLSTATICBUILD', os.name == 'nt'))
+ options['staticbuild'] = staticbuild or options.get('staticbuild', False)
+@@ -678,6 +679,9 @@
+     name = "qhull"
+ 
+     def add_flags(self, ext):
++        if not options.get('local_qhull', False):
++            ext.libraries.append('qhull')
++            return
+         # Qhull doesn't distribute pkg-config info, so we have no way of
+         # knowing whether a system install is recent enough.  Thus, always use
+         # the vendored version.
