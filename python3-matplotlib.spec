@@ -11,7 +11,7 @@ Summary:	Matlab(TM) style Python plotting package
 Summary(pl.UTF-8):	Pakiet do rysowania w Pythonie podobny do Matlaba(TM)
 Name:		python3-%{module}
 Version:	3.2.1
-Release:	3
+Release:	4
 License:	PSF
 Group:		Libraries/Python
 #Source0Download: https://github.com/matplotlib/matplotlib/releases
