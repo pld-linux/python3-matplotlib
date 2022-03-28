@@ -1,8 +1,12 @@
 #
 # Conditional build:
-%bcond_with	tests	# unit tests [many failures as of 1.5.3]
+%bcond_with	doc		# Sphinx documentation
+%bcond_with	tests		# unit tests [many failures as of 3.5.1, esp. with system freetype]
+%bcond_without	system_freetype	# system freetype library
+%bcond_without	system_qhull	# system qhull library
 
 # TODO:
+# - finish doc
 # - use system fonts (mpl-data/fonts/ttf/{STIX,cm}*.ttf) and metrics (mpl-data/fonts/{afm,pdfcorefonts}/*.afm) in mpl-data dir?
 # - make sure all dependencies that are available for Python3 are build for Python3
 #   and included in BR when neccessary
@@ -10,59 +14,75 @@
 Summary:	Matlab(TM) style Python plotting package
 Summary(pl.UTF-8):	Pakiet do rysowania w Pythonie podobny do Matlaba(TM)
 Name:		python3-%{module}
-Version:	3.2.1
-Release:	4
+Version:	3.5.1
+Release:	1
 License:	PSF
 Group:		Libraries/Python
 #Source0Download: https://github.com/matplotlib/matplotlib/releases
 Source0:	https://github.com/matplotlib/matplotlib/archive/v%{version}/matplotlib-%{version}.tar.gz
-# Source0-md5:	9186b1e9f1fc7d555f2abf64b35dea5b
+# Source0-md5:	87af8f1bc31dbe2ea4cb54a8406aa6d6
 Source1:	https://jqueryui.com/resources/download/jquery-ui-1.12.1.zip
 # Source1-md5:	e0cfea21c9d1acd37fb58592f2c1f50d
-Patch0:		%{name}-system-qhull.patch
 URL:		https://matplotlib.org/
+# currently internal agg is used
 #BuildRequires:	agg-devel
-BuildRequires:	freetype-devel >= 1:2.6.1
-BuildRequires:	ghostscript
-BuildRequires:	gtk+3 >= 3.0
-BuildRequires:	libpng-devel >= 1.2
+%{?with_system_freetype:BuildRequires:	freetype-devel >= 1:2.6.1}
 BuildRequires:	libstdc++-devel
-BuildRequires:	ncurses-devel
 BuildRequires:	pkgconfig
-# /usr/bin/pdftops
-BuildRequires:	poppler-progs
-BuildRequires:	python3 >= 1:3.6
-BuildRequires:	python3-2to3
-BuildRequires:	python3-PyQt4
-BuildRequires:	python3-PyQt5
-BuildRequires:	python3-cycler >= 0.10
-BuildRequires:	python3-dateutil >= 2.2
-BuildRequires:	python3-devel >= 1:3.6
-BuildRequires:	python3-numpy-devel >= 1:1.7.1
-# or cairocffi
-BuildRequires:	python3-pycairo
-BuildRequires:	python3-pygobject3-devel >= 3.0
-BuildRequires:	python3-pyparsing >= 2.1.7
-BuildRequires:	python3-pytz
-BuildRequires:	python3-six >= 1.10
+BuildRequires:	python3 >= 1:3.7
+BuildRequires:	python3-certifi >= 2020.6.20
+BuildRequires:	python3-devel >= 1:3.7
+BuildRequires:	python3-numpy-devel >= 1:1.17
 BuildRequires:	python3-setuptools
-# for import pyqtconfig needed by qt detection.
-BuildRequires:	python3-sip-devel
-BuildRequires:	python3-tkinter
-BuildRequires:	python3-tornado
-#BuildRequires:	python3-wxPython >= 2.9
-%if %{with tests}
-BuildRequires:	python3-kiwisolver >= 1.0.1
-BuildRequires:	python3-pytest >= 3.6
-%endif
-BuildRequires:	qhull-devel >= 2015.2
+BuildRequires:	python3-setuptools_scm >= 4
+BuildRequires:	python3-setuptools_scm_git_archive
+%{?with_system_qhull:BuildRequires:	qhull-devel >= 2015.2}
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.714
+%if %{with tests}
+BuildRequires:	ghostscript
+BuildRequires:	gtk+3 >= 3.0
+# /usr/bin/pdftops
+BuildRequires:	poppler-progs
+# or PyQt6>=6.1, PySide6, PySide2
+BuildRequires:	python3-PyQt5
+BuildRequires:	python3-cycler >= 0.10
+BuildRequires:	python3-dateutil >= 2.7
+BuildRequires:	python3-fonttools >= 4.22.0
+BuildRequires:	python3-kiwisolver >= 1.0.1
+BuildRequires:	python3-packaging >= 20.0
+BuildRequires:	python3-pillow >= 6.2.0
+# or cairocffi >= 0.8
+BuildRequires:	python3-pycairo >= 1.11.0
+BuildRequires:	python3-pygobject3 >= 3.0
+BuildRequires:	python3-pyparsing >= 2.2.1
+BuildRequires:	python3-pytest >= 3.6
+BuildRequires:	python3-pytz
+BuildRequires:	python3-tkinter >= 1:3.7
+BuildRequires:	python3-tornado >= 5
+#BuildRequires:	python3-wxPython >= 4
 # /usr/bin/dvipng
 BuildRequires:	texlive
-BuildRequires:	tk-devel
-Requires:	freetype >= 1:2.6.1
-Requires:	python3-modules >= 1:3.6
+BuildRequires:	texlive-xetex
+# Font EU1/lmr/m/n/10=[lmroman10-regular]:mapping=tex-text at 10.0pt
+#BuildRequires:	texlive-???
+%endif
+%if %{with doc}
+BuildRequires:	python3-colorspacious
+BuildRequires:	python3-ipython
+BuildRequires:	python3-ipywidgets
+BuildRequires:	python3-mpl-sphinx-theme
+BuildRequires:	python3-numpydoc >= 0.8
+BuildRequires:	python3-packaging >= 20
+BuildRequires:	python3-scipy
+BuildRequires:	python3-sphinx_copybutton
+BuildRequires:	python3-sphinx_gallery >= 0.10
+BuildRequires:	python3-sphinx_panels
+BuildRequires:	python3-sphinxcontrib-svg2pdfconverter >= 1.1.0
+BuildRequires:	sphinx-pdg >= 2.0.1
+%endif
+%{?with_system_freetype:Requires:	freetype >= 1:2.6.1}
+Requires:	python3-modules >= 1:3.7
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -79,9 +99,18 @@ przechodzących z Matlaba.
 
 %prep
 %setup -q -n %{module}-%{version}
-%patch0 -p1
 
 unzip -q %{SOURCE1} -d lib/matplotlib/backends/web_backend
+
+cat >mplsetup.cfg <<EOF
+[libs]
+%if %{with system_freetype}
+system_freetype = True
+%endif
+%if %{with system_qhull}
+system_qhull = True
+%endif
+EOF
 
 %build
 export CFLAGS="%{rpmcflags}"
@@ -89,8 +118,12 @@ export CFLAGS="%{rpmcflags}"
 %py3_build
 
 %if %{with tests}
-PYTHONPATH=$(readlink -f build-3/lib.*) \
-%{__python3} tests.py --no-network
+LIB=$(readlink -f build-3/lib.*)
+ln -sf $(readlink -f lib/matplotlib/tests/baseline_images) $LIB/matplotlib/tests/baseline_images
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 \
+PYTHONPATH=$LIB \
+%{__python3} -m pytest $LIB/matplotlib/tests -m 'not network'
+%{__rm} $LIB/matplotlib/tests/baseline_images
 %endif
 
 %install
@@ -112,6 +145,7 @@ rm -rf $RPM_BUILD_ROOT
 %{py3_sitedir}/%{module}/*.py
 %{py3_sitedir}/%{module}/__pycache__
 %attr(755,root,root) %{py3_sitedir}/%{module}/*.so
+%{py3_sitedir}/%{module}/_api
 %{py3_sitedir}/%{module}/axes
 %dir %{py3_sitedir}/%{module}/backends
 %{py3_sitedir}/%{module}/backends/*.py
@@ -122,7 +156,6 @@ rm -rf $RPM_BUILD_ROOT
 %{py3_sitedir}/%{module}/backends/qt_editor/__pycache__
 %{py3_sitedir}/%{module}/backends/web_backend
 %{py3_sitedir}/%{module}/cbook
-%{py3_sitedir}/%{module}/compat
 %{py3_sitedir}/%{module}/mpl-data
 %{py3_sitedir}/%{module}/projections
 %{py3_sitedir}/%{module}/sphinxext
