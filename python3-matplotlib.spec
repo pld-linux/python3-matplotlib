@@ -14,15 +14,13 @@
 Summary:	Matlab(TM) style Python plotting package
 Summary(pl.UTF-8):	Pakiet do rysowania w Pythonie podobny do Matlaba(TM)
 Name:		python3-%{module}
-Version:	3.5.1
-Release:	2
+Version:	3.5.3
+Release:	1
 License:	PSF
 Group:		Libraries/Python
 #Source0Download: https://github.com/matplotlib/matplotlib/releases
 Source0:	https://github.com/matplotlib/matplotlib/archive/v%{version}/matplotlib-%{version}.tar.gz
-# Source0-md5:	87af8f1bc31dbe2ea4cb54a8406aa6d6
-Source1:	https://jqueryui.com/resources/download/jquery-ui-1.12.1.zip
-# Source1-md5:	e0cfea21c9d1acd37fb58592f2c1f50d
+# Source0-md5:	3e865ad2653e5c9ba068823075bb2b44
 URL:		https://matplotlib.org/
 # currently internal agg is used
 #BuildRequires:	agg-devel
@@ -35,6 +33,7 @@ BuildRequires:	python3-devel >= 1:3.7
 BuildRequires:	python3-numpy-devel >= 1:1.17
 BuildRequires:	python3-setuptools
 BuildRequires:	python3-setuptools_scm >= 4
+BuildRequires:	python3-setuptools_scm < 7
 BuildRequires:	python3-setuptools_scm_git_archive
 %{?with_system_qhull:BuildRequires:	qhull-devel >= 2015.2}
 BuildRequires:	rpm-pythonprov
@@ -99,8 +98,6 @@ przechodzących z Matlaba.
 
 %prep
 %setup -q -n %{module}-%{version}
-
-unzip -q %{SOURCE1} -d lib/matplotlib/backends/web_backend
 
 cat >mplsetup.cfg <<EOF
 [libs]
