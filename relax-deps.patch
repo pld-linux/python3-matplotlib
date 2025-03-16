@@ -1,0 +1,11 @@
+--- matplotlib-3.10.1/pyproject.toml.orig	2025-02-27 19:50:45.000000000 +0100
++++ matplotlib-3.10.1/pyproject.toml	2025-03-16 14:32:34.197380460 +0100
+@@ -70,7 +70,7 @@
+ build-backend = "mesonpy"
+ # Also keep in sync with optional dependencies above.
+ requires = [
+-    "meson-python>=0.13.1,<0.17.0",
++    "meson-python>=0.13.1",
+     "pybind11>=2.13.2,!=2.13.3",
+     "setuptools_scm>=7",
+ ]

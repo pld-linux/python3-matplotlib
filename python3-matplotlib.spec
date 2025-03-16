@@ -14,30 +14,32 @@
 Summary:	Matlab(TM) style Python plotting package
 Summary(pl.UTF-8):	Pakiet do rysowania w Pythonie podobny do Matlaba(TM)
 Name:		python3-%{module}
-Version:	3.5.3
-Release:	3
+Version:	3.10.1
+Release:	1
 License:	PSF
 Group:		Libraries/Python
 #Source0Download: https://github.com/matplotlib/matplotlib/releases
 Source0:	https://github.com/matplotlib/matplotlib/archive/v%{version}/matplotlib-%{version}.tar.gz
-# Source0-md5:	3e865ad2653e5c9ba068823075bb2b44
+# Source0-md5:	6a25698a27ae1fabe903fe94bf599cc4
+Patch0:		relax-deps.patch
 URL:		https://matplotlib.org/
 # currently internal agg is used
 #BuildRequires:	agg-devel
 %{?with_system_freetype:BuildRequires:	freetype-devel >= 1:2.6.1}
-BuildRequires:	libstdc++-devel
+BuildRequires:	libstdc++-devel >= 6:8
+BuildRequires:	meson >= 1.1.0
 BuildRequires:	pkgconfig
-BuildRequires:	python3 >= 1:3.7
-BuildRequires:	python3-certifi >= 2020.6.20
-BuildRequires:	python3-devel >= 1:3.7
+BuildRequires:	python3 >= 1:3.10
+BuildRequires:	python3-build
+BuildRequires:	python3-devel >= 1:3.10
+BuildRequires:	python3-installer
 BuildRequires:	python3-numpy-devel >= 1:1.17
-BuildRequires:	python3-setuptools
-BuildRequires:	python3-setuptools_scm >= 4
-BuildRequires:	python3-setuptools_scm < 7
-BuildRequires:	python3-setuptools_scm_git_archive
+BuildRequires:	python3-meson-python >= 0.13.1
+BuildRequires:	python3-pybind11 >= 2.13.4
+BuildRequires:	python3-setuptools_scm >= 7
 %{?with_system_qhull:BuildRequires:	qhull-devel >= 2015.2}
 BuildRequires:	rpm-pythonprov
-BuildRequires:	rpmbuild(macros) >= 1.714
+BuildRequires:	rpmbuild(macros) >= 2.044
 %if %{with tests}
 BuildRequires:	ghostscript
 BuildRequires:	gtk+3 >= 3.0
@@ -57,7 +59,7 @@ BuildRequires:	python3-pygobject3 >= 3.0
 BuildRequires:	python3-pyparsing >= 2.2.1
 BuildRequires:	python3-pytest >= 3.6
 BuildRequires:	python3-pytz
-BuildRequires:	python3-tkinter >= 1:3.7
+BuildRequires:	python3-tkinter >= 1:3.10
 BuildRequires:	python3-tornado >= 5
 #BuildRequires:	python3-wxPython >= 4
 # /usr/bin/dvipng
@@ -65,6 +67,7 @@ BuildRequires:	texlive
 BuildRequires:	texlive-xetex
 # Font EU1/lmr/m/n/10=[lmroman10-regular]:mapping=tex-text at 10.0pt
 #BuildRequires:	texlive-???
+BuildRequires:	unzip
 %endif
 %if %{with doc}
 BuildRequires:	python3-colorspacious
@@ -81,7 +84,7 @@ BuildRequires:	python3-sphinxcontrib-svg2pdfconverter >= 1.1.0
 BuildRequires:	sphinx-pdg >= 2.0.1
 %endif
 %{?with_system_freetype:Requires:	freetype >= 1:2.6.1}
-Requires:	python3-modules >= 1:3.7
+Requires:	python3-modules >= 1:3.10
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -98,24 +101,17 @@ przechodzących z Matlaba.
 
 %prep
 %setup -q -n %{module}-%{version}
-
-cat >mplsetup.cfg <<EOF
-[libs]
-%if %{with system_freetype}
-system_freetype = True
-%endif
-%if %{with system_qhull}
-system_qhull = True
-%endif
-EOF
+%patch -P0 -p1
 
 %build
-export CFLAGS="%{rpmcflags}"
 
-%py3_build
+%py3_build_pyproject \
+	-Csetup-args="-Dsystem-freetype=%{__true_false system_freetype}" \
+	-Csetup-args="-Dsystem-qhull=%{__true_false system_qhull}"
 
 %if %{with tests}
-LIB=$(readlink -f build-3/lib.*)
+%__unzip -qo build-3/*.whl -d build-3/test-path
+LIB="$(pwd)/build-3/test-path"
 ln -sf $(readlink -f lib/matplotlib/tests/baseline_images) $LIB/matplotlib/tests/baseline_images
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 \
 PYTHONPATH=$LIB \
@@ -126,7 +122,7 @@ PYTHONPATH=$LIB \
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%py3_install
+%py3_install_pyproject
 
 %{__rm} -r $RPM_BUILD_ROOT%{py3_sitedir}/matplotlib/tests
 # matplotlib can use system fonts, so drop these copies
@@ -137,22 +133,24 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc README.rst LICENSE/LICENSE
+%doc README.md LICENSE/LICENSE
 %dir %{py3_sitedir}/%{module}
 %{py3_sitedir}/%{module}/*.py
+%{py3_sitedir}/%{module}/*.pyi
 %{py3_sitedir}/%{module}/__pycache__
+%{py3_sitedir}/%{module}/py.typed
 %attr(755,root,root) %{py3_sitedir}/%{module}/*.so
 %{py3_sitedir}/%{module}/_api
 %{py3_sitedir}/%{module}/axes
 %dir %{py3_sitedir}/%{module}/backends
 %{py3_sitedir}/%{module}/backends/*.py
+%{py3_sitedir}/%{module}/backends/*.pyi
 %{py3_sitedir}/%{module}/backends/__pycache__
 %attr(755,root,root) %{py3_sitedir}/%{module}/backends/*.so
 %dir %{py3_sitedir}/%{module}/backends/qt_editor
 %{py3_sitedir}/%{module}/backends/qt_editor/*.py
 %{py3_sitedir}/%{module}/backends/qt_editor/__pycache__
 %{py3_sitedir}/%{module}/backends/web_backend
-%{py3_sitedir}/%{module}/cbook
 %{py3_sitedir}/%{module}/mpl-data
 %{py3_sitedir}/%{module}/projections
 %{py3_sitedir}/%{module}/sphinxext
@@ -162,5 +160,4 @@ rm -rf $RPM_BUILD_ROOT
 %{py3_sitedir}/mpl_toolkits
 %{py3_sitedir}/pylab.py
 %{py3_sitedir}/__pycache__
-%{py3_sitedir}/%{module}-%{version}-py*.egg-info
-%{py3_sitedir}/%{module}-%{version}-py*-nspkg.pth
+%{py3_sitedir}/%{module}-%{version}.dist-info
