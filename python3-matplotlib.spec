@@ -14,13 +14,13 @@
 Summary:	Matlab(TM) style Python plotting package
 Summary(pl.UTF-8):	Pakiet do rysowania w Pythonie podobny do Matlaba(TM)
 Name:		python3-%{module}
-Version:	3.10.1
-Release:	2
+Version:	3.10.7
+Release:	1
 License:	PSF
 Group:		Libraries/Python
 #Source0Download: https://github.com/matplotlib/matplotlib/releases
 Source0:	https://github.com/matplotlib/matplotlib/archive/v%{version}/matplotlib-%{version}.tar.gz
-# Source0-md5:	6a25698a27ae1fabe903fe94bf599cc4
+# Source0-md5:	0e4136642c13c7784af76a72a6a0187e
 Patch0:		relax-deps.patch
 URL:		https://matplotlib.org/
 # currently internal agg is used
@@ -33,9 +33,10 @@ BuildRequires:	python3 >= 1:3.10
 BuildRequires:	python3-build
 BuildRequires:	python3-devel >= 1:3.10
 BuildRequires:	python3-installer
-BuildRequires:	python3-numpy-devel >= 1:1.17
+BuildRequires:	python3-numpy-devel >= 1:1.23
 BuildRequires:	python3-meson-python >= 0.13.1
 BuildRequires:	python3-pybind11 >= 2.13.4
+BuildRequires:	python3-setuptools >= 1:64
 BuildRequires:	python3-setuptools_scm >= 7
 %{?with_system_qhull:BuildRequires:	qhull-devel >= 2015.2}
 BuildRequires:	rpm-pythonprov
@@ -47,16 +48,17 @@ BuildRequires:	gtk+3 >= 3.0
 BuildRequires:	poppler-progs
 # or PyQt6>=6.1, PySide6, PySide2
 BuildRequires:	python3-PyQt5
+BuildRequires:	python3-contourpy >= 1.0.1
 BuildRequires:	python3-cycler >= 0.10
 BuildRequires:	python3-dateutil >= 2.7
 BuildRequires:	python3-fonttools >= 4.22.0
-BuildRequires:	python3-kiwisolver >= 1.0.1
+BuildRequires:	python3-kiwisolver >= 1.3.1
 BuildRequires:	python3-packaging >= 20.0
-BuildRequires:	python3-pillow >= 6.2.0
+BuildRequires:	python3-pillow >= 8
 # or cairocffi >= 0.8
 BuildRequires:	python3-pycairo >= 1.11.0
 BuildRequires:	python3-pygobject3 >= 3.0
-BuildRequires:	python3-pyparsing >= 2.2.1
+BuildRequires:	python3-pyparsing >= 3
 BuildRequires:	python3-pytest >= 3.6
 BuildRequires:	python3-pytz
 BuildRequires:	python3-tkinter >= 1:3.10
@@ -70,18 +72,23 @@ BuildRequires:	texlive-xetex
 BuildRequires:	unzip
 %endif
 %if %{with doc}
+BuildRequires:	python3-PyStemmer
+BuildRequires:	python3-PyYAML
 BuildRequires:	python3-colorspacious
+BuildRequires:	python3-ipykernel
 BuildRequires:	python3-ipython
 BuildRequires:	python3-ipywidgets
-BuildRequires:	python3-mpl-sphinx-theme
-BuildRequires:	python3-numpydoc >= 0.8
+BuildRequires:	python3-mpl-sphinx-theme >= 3.9.0
+BuildRequires:	python3-numpydoc >= 1.0
 BuildRequires:	python3-packaging >= 20
-BuildRequires:	python3-scipy
+BuildRequires:	python3-pydata_sphinx_theme >= 0.15.0
 BuildRequires:	python3-sphinx_copybutton
-BuildRequires:	python3-sphinx_gallery >= 0.10
-BuildRequires:	python3-sphinx_panels
+BuildRequires:	python3-sphinx_design
+BuildRequires:	python3-sphinx_gallery >= 0.12.0
+BuildRequires:	python3-sphinx_tags >= 0.4.0
 BuildRequires:	python3-sphinxcontrib-svg2pdfconverter >= 1.1.0
-BuildRequires:	sphinx-pdg >= 2.0.1
+BuildRequires:	python3-sphinxcontrib-video >= 0.2.1
+BuildRequires:	sphinx-pdg >= 5.1.0
 %endif
 %{?with_system_freetype:Requires:	freetype >= 1:2.6.1}
 Requires:	python3-modules >= 1:3.10
@@ -133,7 +140,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc README.md LICENSE/LICENSE
+%doc README.md SECURITY.md LICENSE/LICENSE
 %dir %{py3_sitedir}/%{module}
 %{py3_sitedir}/%{module}/*.py
 %{py3_sitedir}/%{module}/*.pyi
